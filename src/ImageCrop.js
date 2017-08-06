@@ -179,13 +179,17 @@ class ImageCrop extends Component {
     return (
         <View {...this._panResponder.panHandlers}>
           <Surface width={this.props.cropWidth} height={this.props.cropHeight} pixelRatio={this.props.pixelRatio} ref="cropit">
-		        <GLImage
-		          source={{ uri: this.props.image}}
-              imageSize={{height: this.state.imageHeight, width: this.state.imageWidth}}
-		          resizeMode="cover"
-		          zoom={this.state.zoom}
-		          center={[this.state.centerX, this.state.centerY]}
-		        />
+		   {this.state.imageHeight > 0 ?
+		      <GLImage
+			source={{ uri: this.props.image}}
+			imageSize={{height: this.state.imageHeight, width: this.state.imageWidth}}
+			resizeMode="cover"
+			zoom={this.state.zoom}
+			center={[this.state.centerX, this.state.centerY]}
+		      />
+		    :
+		      <View style={{flex:1, backgroundColor:'white'}}/>
+		    }
           </Surface>
         </View>
     )
