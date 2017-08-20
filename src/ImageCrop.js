@@ -6,6 +6,8 @@ import {
   PanResponder
 } from 'react-native'
 
+import PropTypes from 'prop-types';
+
 import {Surface} from 'gl-react-native'
 const {Image: GLImage} = require("gl-react-image")
 
@@ -56,15 +58,64 @@ class ImageCrop extends Component {
       centerY: 0.5,
 
       //Image sizes
-      imageHeight: 300,
-      imageWidth: 300,
+      imageHeight: 0,
+      imageWidth: 0,
       imageDimHeight: 0,
       imageDimWidth: 0,
       currentCapture: '',
     }
   }
   componentWillMount(){
-    Image.getSize(this.props.image, (width, height) => {
+    this.calculateImageProps(this.props.image)
+  }
+  componentWillReceiveProps(nextProps){
+    if (this.props.image != nextProps.image) {
+      this.calculateImageProps(nextProps.image)
+    }else{
+
+      if (this.props.zoom != nextProps.zoom) {
+        var zoom = (100 - nextProps.zoom)/100
+        this.setState({ zoom: zoom })
+      }
+
+      //
+      //get dimensions after crop
+      //
+      this._dimensionAfterZoom = imageDimensionsAfterZoom(
+        {height: this.props.cropHeight, width: this.props.cropWidth},
+        {height: this.state.imageHeight, width: this.state.imageWidth},
+        this.state.zoom 
+      )
+
+      this.setState({
+        imageDimHeight: this._dimensionAfterZoom.height,
+        imageDimWidth: this._dimensionAfterZoom.width
+      })
+    }
+  }
+
+  resetState() {
+    this.setState({
+      zoom: 1,
+
+      //pan settings
+      centerX: 0.5,
+      centerY: 0.5,
+
+      //Image sizes
+      imageHeight: 0,
+      imageWidth: 0,
+      imageDimHeight: 0,
+      imageDimWidth: 0,
+      currentCapture: '',
+    })
+  }
+
+  calculateImageProps(image) {
+
+    this.resetState();
+
+    Image.getSize(image, (width, height) => {
       //update state
       this.setState({
         imageHeight: height,
@@ -155,41 +206,22 @@ class ImageCrop extends Component {
       }
     })
   }
-  componentWillReceiveProps(nextProps){
-    if (this.props.zoom != nextProps.zoom) {
-      var zoom = (100 - nextProps.zoom)/100
-      this.setState({ zoom: zoom })
-    }
 
-    //
-    //get dimensions after crop
-    //
-    this._dimensionAfterZoom = imageDimensionsAfterZoom(
-      {height: this.props.cropHeight, width: this.props.cropWidth},
-      {height: this.state.imageHeight, width: this.state.imageWidth},
-      this.state.zoom 
-    )
-
-    this.setState({
-      imageDimHeight: this._dimensionAfterZoom.height,
-      imageDimWidth: this._dimensionAfterZoom.width
-    })
-  }
   render() {
     return (
         <View {...this._panResponder.panHandlers}>
           <Surface width={this.props.cropWidth} height={this.props.cropHeight} pixelRatio={this.props.pixelRatio} ref="cropit">
-		   {this.state.imageHeight > 0 ?
-		      <GLImage
-			source={{ uri: this.props.image}}
-			imageSize={{height: this.state.imageHeight, width: this.state.imageWidth}}
-			resizeMode="cover"
-			zoom={this.state.zoom}
-			center={[this.state.centerX, this.state.centerY]}
-		      />
-		    :
-		      <View style={{flex:1, backgroundColor:'white'}}/>
-		    }
+            {this.state.imageHeight > 0 ?
+              <GLImage
+                source={{ uri: this.props.image}}
+                imageSize={{height: this.state.imageHeight, width: this.state.imageWidth}}
+                resizeMode="cover"
+                zoom={this.state.zoom}
+                center={[this.state.centerX, this.state.centerY]}
+              />
+            :
+              <View style={{flex:1, backgroundColor:'white'}} key={'gl-image-placeholder'}/>
+            }
           </Surface>
         </View>
     )
@@ -211,15 +243,15 @@ ImageCrop.defaultProps = {
   format: 'base64',
 }
 ImageCrop.propTypes = {
-  image: React.PropTypes.string.isRequired,
-  cropWidth: React.PropTypes.number.isRequired,
-  cropHeight: React.PropTypes.number.isRequired,
-  zoomFactor: React.PropTypes.number,
-  maxZoom: React.PropTypes.number,
-  minZoom: React.PropTypes.number,
-  quality: React.PropTypes.number,
-  pixelRatio: React.PropTypes.number,
-  type: React.PropTypes.string,
-  format: React.PropTypes.string,
+  image: PropTypes.string.isRequired,
+  cropWidth: PropTypes.number.isRequired,
+  cropHeight: PropTypes.number.isRequired,
+  zoomFactor: PropTypes.number,
+  maxZoom: PropTypes.number,
+  minZoom: PropTypes.number,
+  quality: PropTypes.number,
+  pixelRatio: PropTypes.number,
+  type: PropTypes.string,
+  format: PropTypes.string,
 }
 module.exports=ImageCrop
