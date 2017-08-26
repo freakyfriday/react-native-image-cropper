@@ -121,20 +121,20 @@ class ImageCrop extends Component {
         imageHeight: height,
         imageWidth: width,
       })
-    })
 
-    //
-    //get dimensions after crop
-    //
-    this._dimensionAfterZoom = imageDimensionsAfterZoom(
-      {height: this.props.cropHeight, width: this.props.cropWidth},
-      {height: this.state.imageHeight, width: this.state.imageWidth},
-      this.state.zoom 
-    )
-
-    this.setState({
-      imageDimHeight: this._dimensionAfterZoom.height,
-      imageDimWidth: this._dimensionAfterZoom.width
+      //
+      //get dimensions after crop
+      //
+      this._dimensionAfterZoom = imageDimensionsAfterZoom(
+        {height: this.props.cropHeight, width: this.props.cropWidth},
+        {height: this.state.imageHeight, width: this.state.imageWidth},
+        this.state.zoom 
+      )
+  
+      this.setState({
+        imageDimHeight: this._dimensionAfterZoom.height,
+        imageDimWidth: this._dimensionAfterZoom.width
+      })
     })
 
     this._panResponder = PanResponder.create({
@@ -213,11 +213,11 @@ class ImageCrop extends Component {
           <Surface width={this.props.cropWidth} height={this.props.cropHeight} pixelRatio={this.props.pixelRatio} ref="cropit">
             {this.state.imageHeight > 0 ?
               <GLImage
-                source={{ uri: this.props.image}}
-                imageSize={{height: this.state.imageHeight, width: this.state.imageWidth}}
-                resizeMode="cover"
-                zoom={this.state.zoom}
-                center={[this.state.centerX, this.state.centerY]}
+                source     = {{ uri: this.props.image}}
+                imageSize  = {{height: this.state.imageHeight, width: this.state.imageWidth}}
+                resizeMode = "cover"
+                zoom       = {this.state.zoom}
+                center     = {[this.state.centerX, this.state.centerY]}
               />
             :
               <View style={{flex:1, backgroundColor:'white'}} key={'gl-image-placeholder'}/>
